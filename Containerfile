@@ -5,7 +5,7 @@ LABEL com.github.containers.toolbox="true" \
       summary="A cloud-native terminal experience" \
       maintainer="ben@benhoman.com"
 
-RUN pacman -Syu --noconfirm
+RUN pacman -Syu --noconfirm && pacman -S --needed base-devel
 
 ARG user=makepkg
 
@@ -15,9 +15,8 @@ RUN useradd --system --create-home $user && \
 USER $user
 WORKDIR /home/$user
 
-# Install yay
-RUN pacman -S --needed base-devel && \
-  git clone https://aur.archlinux.org/paru.git && \
+# Install paru
+RUN git clone https://aur.archlinux.org/paru.git && \
   cd paru && \
   makepkg -sri --needed --noconfirm && \
   cd && \
@@ -25,7 +24,7 @@ RUN pacman -S --needed base-devel && \
 
 # Install my packages
 COPY extra-packages .
-RUN cat extra-packages | xargs yay -S --noconfirm --removemake
+RUN cat extra-packages | xargs paru -S --noconfirm --removemake
 RUN rm extra-packages
 
 # Become root again and do rooty things
